@@ -1,3 +1,5 @@
+let debugLines = 0;
+
 let map = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -27,17 +29,17 @@ class Vector2 {
 
     // add another vector to this one
     add(vec2) {
-        return new Vec2(this.x + vec2.x, this.y + vec2.y);
+        return new Vector2(this.x + vec2.x, this.y + vec2.y);
     }
 
     // subtract a vector from this one
     subtract(vec2) {
-        return new Vec2(this.x - vec2.x, this.y - vec2.y);
+        return new Vector2(this.x - vec2.x, this.y - vec2.y);
     }
 
     // multiply a scalar to this vector
     multiply(num) {
-        let returnVal = new Vec2(this.x * num, this.y * num);
+        let returnVal = new Vector2(this.x * num, this.y * num);
         if (returnVal.x == 0 || returnVal.x == -0) {
             returnVal.x = 0;
         }
@@ -49,7 +51,7 @@ class Vector2 {
 
     // divide this vector by the given scalar
     divide(num) {
-        let returnVal = new Vec2(this.x / num, this.y / num);
+        let returnVal = new Vector2(this.x / num, this.y / num);
         if (returnVal.x == 0 || returnVal.x == -0) {
             returnVal.x = 0;
         }
@@ -62,7 +64,7 @@ class Vector2 {
     // get a normalized version of this vector
     normalize() {
         let len = this.length();
-        return new Vec2(this.x / len, this.y / len);
+        return new Vector2(this.x / len, this.y / len);
     }
 
     // test whether this is equal to another vector
@@ -128,17 +130,19 @@ class RaycastingMethods {
         coefficientSets.push(this.FindIntersection(w.BottomRight, w.BottomVector, raycast));
         coefficientSets.push(this.FindIntersection(w.BottomLeft, w.LeftVector, raycast));
 
-
+        // find the index of the vector that
+        // has a hit closest to the player
         let indexOfClosestVectorHit = -1;
         let distance = Number.MAX_VALUE;
+        
         for (let i = 0; i < coefficientSets.length; i++) {
             // if coefficients are > 0 and < 1, the vectors intersect
-            if (coefficientSets[i].X >= 0 && coefficientSets[i].X <= 1 &&
-                coefficientSets[i].Y >= 0 && coesfficientSets[i].Y <= 1) {
+            if (coefficientSets[i].x >= 0 && coefficientSets[i].x <= 1 &&
+                coefficientSets[i].y >= 0 && coefficientSets[i].y <= 1) {
                 // if they intersect and the location of intersection is 
                 // closer than distance, then store the index of the hit
                 let rayModified = raycast.multiply(coefficientSets[i].x);
-                if (rayModified.Length() < distance) {
+                if (rayModified.length() < distance) {
                     distance = rayModified.length();
                     indexOfClosestVectorHit = i;
                 }
@@ -170,12 +174,13 @@ class RaycastingMethods {
         pToC_X = wallVecStart.x - player.position.x;
         pToC_Y = wallVecStart.y - player.position.y;
         solvedCoefficients.x = -wallVecDir.y * pToC_X + wallVecDir.x * pToC_Y;
-        solvedCoefficients.Y = -raycast.y * pToC_X + raycast.x * pToC_Y;
-        solvedCoefficients.divide((-raycast.x * wallVecDir.y) + (raycast.y * wallVecDir.x));
+        solvedCoefficients.y = -raycast.y * pToC_X + raycast.x * pToC_Y;
+        solvedCoefficients = solvedCoefficients.divide((-raycast.x * wallVecDir.y) + (raycast.y * wallVecDir.x));
         return solvedCoefficients;
     }
 }
 
+// stores info for every raycast hit
 class HitInfo {
     constructor(normal, relativeHitLocation, distance) {
         this.normal = normal;
@@ -184,11 +189,11 @@ class HitInfo {
     }
 }
 
+// stores the necessary info for the player
 class Player {
     constructor() {
-        this.coords = new Vector2(); 3
-        this.position = new Vector2();
-        this.fov = 0;
+        this.position = new Vector2(8, 8);
+        this.fov = Math.PI / 4;
         this.angle = 0;
     }
 }
